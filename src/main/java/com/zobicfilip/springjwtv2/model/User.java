@@ -15,7 +15,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Table(name = "application_user", schema = "auth_db")
 @EntityListeners(AuditingEntityListener.class)
@@ -70,5 +72,15 @@ public class User {
             roles = new ArrayList<>();
         }
         roles.add(userRole);
+    }
+
+    public Set<String> getRolesInStringSet() {
+        if (roles == null) {
+            roles = new ArrayList<>();
+        }
+        return this.getRoles().stream()
+                .map(RoleUser::getRolesAndAuthorities)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet());
     }
 }
