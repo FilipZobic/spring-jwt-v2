@@ -4,9 +4,9 @@ spring:
   application:
     name: authentication
   datasource:
-    password: root
-    url: jdbc:postgresql://localhost:5432/auth_db?autoreconnect=true&createDatabaseIfNotExist=true
-    username: root
+    password:
+    url:
+    username:
   jpa:
     hibernate:
       ddl-auto: none
@@ -14,10 +14,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL95Dialect
         format_sql: true
-    show-sql: true
+    show-sql: false
 
   flyway:
-    url: jdbc:postgresql://localhost:5432/auth_db
-    schemas: auth_db
-    user: root
-    password: root
+    url:
+    schemas:
+    user:
+    password:
