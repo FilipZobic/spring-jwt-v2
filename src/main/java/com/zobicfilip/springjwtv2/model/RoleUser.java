@@ -28,7 +28,7 @@ public class RoleUser {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", referencedColumnName = "id", insertable = false, updatable = false) // column joins
+    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false) // column joins // TOOD take a look at this try to make it mutable
     private User user;
     // this happens because we reference it by id column in embedded key so we need insertable and updatable when saving use keys
 
