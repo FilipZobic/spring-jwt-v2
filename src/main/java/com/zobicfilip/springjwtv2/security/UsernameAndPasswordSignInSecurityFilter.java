@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zobicfilip.springjwtv2.dto.AuthSignInDTO;
-import com.zobicfilip.springjwtv2.model.PrincipleUser;
+import com.zobicfilip.springjwtv2.model.ExpandedUserDetails;
 import com.zobicfilip.springjwtv2.service.JWTService;
 import com.zobicfilip.springjwtv2.util.Util;
 import jakarta.servlet.FilterChain;
@@ -74,7 +74,7 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
 //
-        PrincipleUser principleUser = Util.getPrincipleUser(authResult);
+        ExpandedUserDetails principleUser = Util.getUserDetails(authResult);
         String email = principleUser.getEmail();
         UUID id = principleUser.getUserId();
         String username = principleUser.getUsername();

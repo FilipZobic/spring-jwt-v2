@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 import java.util.UUID;
 
-public class PrincipleUser extends User {
+public class PrincipleUser extends User implements ExpandedUserDetails {
 
     @Getter private final UUID userId;
 
