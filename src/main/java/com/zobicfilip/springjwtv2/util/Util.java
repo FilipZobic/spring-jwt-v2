@@ -1,6 +1,6 @@
 package com.zobicfilip.springjwtv2.util;
 
-import com.zobicfilip.springjwtv2.exception.TokenNotFoundException;
+import com.zobicfilip.springjwtv2.exception.TokenNotFoundInHeaderException;
 import com.zobicfilip.springjwtv2.model.PrincipleUser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
@@ -24,10 +24,10 @@ public abstract class Util {
         return getPrincipleUser(SecurityContextHolder.getContext().getAuthentication());
     }
 
-    public static String getAccessTokenFromHeader(HttpServletRequest request) throws TokenNotFoundException {
+    public static String getAccessTokenFromHeader(HttpServletRequest request) throws TokenNotFoundInHeaderException {
         String authorization = request.getHeader("Authorization");
-        if (authorization == null) throw new TokenNotFoundException("No authorization header found");
-        if (!authorization.contains("Bearer ")) throw new TokenNotFoundException("Invalid token request header format");
+        if (authorization == null) throw new TokenNotFoundInHeaderException("No authorization header found");
+        if (!authorization.contains("Bearer ")) throw new TokenNotFoundInHeaderException("Invalid token request header format");
         return authorization.substring("Bearer ".length());
     }
 }
