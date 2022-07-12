@@ -7,8 +7,6 @@ import com.zobicfilip.springjwtv2.dto.AuthSignInDTO;
 import com.zobicfilip.springjwtv2.model.PrincipleUser;
 import com.zobicfilip.springjwtv2.service.JWTService;
 import com.zobicfilip.springjwtv2.util.Util;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,13 +31,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final JWTService<Jws<Claims>> tokenService;
+    private final JWTService tokenService;
 
     private final static ObjectMapper mapper = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
 
-    public UsernameAndPasswordSignInSecurityFilter(AuthenticationManager authenticationManager, JWTService<Jws<Claims>> tokenService) {
+    public UsernameAndPasswordSignInSecurityFilter(AuthenticationManager authenticationManager, JWTService tokenService) {
         super(authenticationManager);
         this.setFilterProcessesUrl("/api/auth/signIn");
         this.tokenService = tokenService;
