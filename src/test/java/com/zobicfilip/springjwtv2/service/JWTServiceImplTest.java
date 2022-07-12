@@ -24,6 +24,7 @@ class JWTServiceImplTest {
     static UUID userId;
     static Set<String> userPermissions;
     static String username;
+    static String userMail;
     
     static JWTServiceJjwtImpl primaryJwtService;
 
@@ -34,6 +35,7 @@ class JWTServiceImplTest {
         userId = UUID.randomUUID();
         userPermissions = new HashSet<>(Arrays.asList("ROLE_USER", "ROLE_ADMIN"));
         username = "user";
+        userMail = "user@gmail.com";
         primaryJwtService = new JWTServiceJjwtImpl(securityUtil);
     }
 
@@ -56,7 +58,7 @@ class JWTServiceImplTest {
     void generateAccessToken_tokenIsValid_whenPassedExpirationDateAndNonExpiredAndValidSignatureAndDataIsConsistent() {
         // TOKEN GENERATION>
         
-        String accessToken = primaryJwtService.generateAccessToken(userId, userPermissions, username);
+        String accessToken = primaryJwtService.generateAccessToken(userId, userPermissions, username, userMail);
         // <TOKEN GENERATION
         // ASSERTIONS>
         boolean tokenIsValid = primaryJwtService.validateAccessToken(accessToken);
@@ -81,7 +83,7 @@ class JWTServiceImplTest {
         SecurityUtil secondarySecurityUtil = mockSecurityUtil(secret + "99929201");
         JWTServiceJjwtImpl secondaryJwtService = new JWTServiceJjwtImpl(secondarySecurityUtil);
         
-        String secondaryAccessToken = secondaryJwtService.generateAccessToken(userId, userPermissions, username);
+        String secondaryAccessToken = secondaryJwtService.generateAccessToken(userId, userPermissions, username, userMail);
 
         boolean isSecondaryTokenInPrimaryServiceValid = primaryJwtService.validateAccessToken(secondaryAccessToken);
         Assertions.assertFalse(isSecondaryTokenInPrimaryServiceValid);
@@ -94,7 +96,7 @@ class JWTServiceImplTest {
 
     @Test
     void generateRefreshAndAccessToken_refreshAndAccessTokensAreValid_whenGeneratedCorrectly() {
-        Pair<String, String> refreshAndAccessToken = primaryJwtService.generateRefreshAndAccessToken(userId, userPermissions, username);
+        Pair<String, String> refreshAndAccessToken = primaryJwtService.generateRefreshAndAccessToken(userId, userPermissions, username, userMail);
         Assertions.assertTrue(
                 primaryJwtService.validateRefreshToken(refreshAndAccessToken.getLeft())
         );
@@ -105,14 +107,14 @@ class JWTServiceImplTest {
 
     @Test
     void validateAccessToken_accessTokenIsValid_whenTokenIsGeneratedCorrectly() {
-        String primaryAccessToken = primaryJwtService.generateAccessToken(userId, userPermissions, username);
+        String primaryAccessToken = primaryJwtService.generateAccessToken(userId, userPermissions, username, userMail);
         boolean actual = primaryJwtService.validateAccessToken(primaryAccessToken);
         Assertions.assertTrue(actual);
     }
 
     @Test
     void validateRefreshToken_accessTokenIsNotValid_whenTokenIsGeneratedCorrectlyAndIsTamperedWith() {
-        String tamperedToken = primaryJwtService.generateAccessToken(userId, userPermissions, username) + "2";
+        String tamperedToken = primaryJwtService.generateAccessToken(userId, userPermissions, username, userMail) + "2";
         boolean actual = primaryJwtService.validateAccessToken(tamperedToken);
         Assertions.assertFalse(actual);
     }
