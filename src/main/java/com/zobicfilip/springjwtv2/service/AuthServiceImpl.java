@@ -1,6 +1,6 @@
 package com.zobicfilip.springjwtv2.service;
 
-import com.zobicfilip.springjwtv2.dto.AuthRegistrationDTO;
+import com.zobicfilip.springjwtv2.dto.AuthSignUpDTO;
 import com.zobicfilip.springjwtv2.exception.RegErrorType;
 import com.zobicfilip.springjwtv2.exception.RegistrationFailedException;
 import com.zobicfilip.springjwtv2.keys.RoleUserCompKey;
@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @SneakyThrows
     @Transactional
-    public Pair<String, String> registerUser(AuthRegistrationDTO userDto) {
+    public Pair<String, String> registerUser(AuthSignUpDTO userDto) {
 
         userRepository.findUserByEmailOrUsername(userDto.getEmail(), userDto.getUsername())
                 .ifPresent(usr -> { throw new RegistrationFailedException(userDto, usr, RegErrorType.ALREADY_EXISTS); });
@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
 //        user.addRole(roleUser);
 //        user = this.userRepository.save(user);
         return jwtService.generateRefreshAndAccessToken(user.getId(),
-                user.getRolesInStringSet(),
-                user.getUsername());
+                user.getRolesAndAuthoritiesFormatted(),
+                user.getUsername(), user.getEmail());
     }
 }

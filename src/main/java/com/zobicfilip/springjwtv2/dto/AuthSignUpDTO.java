@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthRegistrationDTO {
+public class AuthSignUpDTO {
 
     // TODO add validation
 

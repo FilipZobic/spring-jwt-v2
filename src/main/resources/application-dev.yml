@@ -30,4 +30,4 @@ security:
       minutes: 10080
   token:
     secret: qqdgqswyp2dfhiudhfiouawkomv2ps4yoxvmp24oqxypv2yoqxpv4oqmpvx4ovy61-906-1x0-v61jqt34qterqwteqwrt
-    cutoffDate: 2022-01-01
+    cutoffDate: 2023-01-01
