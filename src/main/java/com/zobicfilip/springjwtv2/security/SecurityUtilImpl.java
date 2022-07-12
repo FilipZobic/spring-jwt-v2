@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -33,17 +34,18 @@ public class SecurityUtilImpl implements SecurityUtil {
     @Getter private Date cutoffDate;
 
     @PostConstruct
-    @SneakyThrows
-    private void postConstruct() {
+    private void postConstruct() throws ParseException {
         this.key = Keys.hmacShaKeyFor(this.secretKey.getBytes());
         this.accessTokenLifespan = Long.parseLong(environment.resolvePlaceholders("${security.access.alive.minutes}")) * 1000 * 60;
         this.refreshTokenLifespan = Long.parseLong(environment.resolvePlaceholders("${security.refresh.alive.minutes}")) * 1000 * 60;
 //        this.secretKey = environment.resolvePlaceholders("${security.jwt.secret}");
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        String cutOffDate = environment.resolvePlaceholders("${security.token.cutoffDate}");
         try {
-            this.cutoffDate = dateFormatter.parse(environment.resolvePlaceholders("${security.token.cutoffDate}"));
-        } catch (IllegalArgumentException e) {
+            if (StringUtils.isBlank(cutOffDate)) throw new ParseException("Date is blank", -1);
+            this.cutoffDate = dateFormatter.parse(cutOffDate);
+        } catch (ParseException e) {
             this.cutoffDate = dateFormatter.parse(
                     dateFormatter.format(
                             new Date(System.currentTimeMillis() - refreshTokenLifespan*2)
