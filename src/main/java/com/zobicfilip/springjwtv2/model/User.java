@@ -74,7 +74,15 @@ public class User {
         roles.add(userRole);
     }
 
-    public Set<String> getRolesInStringSet() {
+    public Set<String> getRolesFormatted() {
+        if (roles == null) {
+            roles = new ArrayList<>();
+        }
+        return this.getRoles().stream()
+                .map((RoleUser a) -> a.getRole().getTitle())
+                .collect(Collectors.toSet());
+    }
+    public Set<String> getRolesAndAuthoritiesFormatted() {
         if (roles == null) {
             roles = new ArrayList<>();
         }
