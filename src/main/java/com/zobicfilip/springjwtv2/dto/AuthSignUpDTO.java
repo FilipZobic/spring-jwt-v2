@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import static com.zobicfilip.springjwtv2.dto.ConstraintOrder.*;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,10 +27,9 @@ public class AuthSignUpDTO {
 //    @UniqueUsername(groups = Fourth.class) // checks database needs autowire
     private String username;
 
-//    @NotBlank(message = "Email is required")
-//    @EmailRegex(grops = Second.class)
-//    @ValidDNS(groups = Third.class)
-//    @UniqueEmail(groups = Fourth.class)
+    @NotBlank(message = "Email is required")
+    @EmailConstraint(onlyRegisteredDomains = false, onlyTrustedDomains = false, groups = Second.class)
+    @UniqueEmail(ignoreRuleIfSameAsSecurityContextEmail = false, groups = Fourth.class)
     private String email;
 
     @NotBlank(message = "Username is required")

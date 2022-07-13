@@ -2,7 +2,7 @@ package com.zobicfilip.springjwtv2.validation;
 
 public interface EmailValidationService {
 
-    boolean emailDomainExists(String email);
+    boolean emailDomainIsRegistered(String email);
 
     boolean emailPatternValid(String email);
 

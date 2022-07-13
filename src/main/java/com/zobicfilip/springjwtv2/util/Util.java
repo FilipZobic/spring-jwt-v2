@@ -1,8 +1,10 @@
 package com.zobicfilip.springjwtv2.util;
 
+import com.zobicfilip.springjwtv2.exception.SecurityContextAuthenticationNotFoundException;
 import com.zobicfilip.springjwtv2.exception.TokenNotFoundInHeaderException;
 import com.zobicfilip.springjwtv2.model.ExpandedUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -20,7 +22,7 @@ public abstract class Util {
         return getUserDetails(authentication.getPrincipal());
     }
 
-    public static ExpandedUserDetails getUserDetails() {
+    public static ExpandedUserDetails getUserDetails() throws SecurityContextAuthenticationNotFoundException {
         return getUserDetails(SecurityContextHolder.getContext().getAuthentication());
     }
 
