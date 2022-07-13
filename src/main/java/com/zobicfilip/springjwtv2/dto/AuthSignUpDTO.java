@@ -34,8 +34,8 @@ public class AuthSignUpDTO {
 //    @UniqueEmail(groups = Fourth.class)
     private String email;
 
-//    @NotBlank(message = "Username is required")
-//    @PasswordRegex(groups = Second.class)
+    @NotBlank(message = "Username is required")
+    @PasswordPattern(groups = Second.class)
     private String password;
 
     @NotBlank(message = "Country is required")
