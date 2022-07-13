@@ -27,14 +27,14 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, JWTService<Jws<Claims>> jwtService) throws Exception {
         http
                 .authorizeHttpRequests(authz -> {
-                    authz.antMatchers("/api/auth/signIn").permitAll()
+                    authz.antMatchers("/api/auth/signIn", "/api/auth/signUp").permitAll()
                             .anyRequest().authenticated();
-                });
-        http.csrf().disable();
-        http.cors().disable(); // TODO REFACTOR cors and csrf configuration
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.addFilter(new UsernameAndPasswordSignInSecurityFilter(authenticationManager, jwtService));
-        http.addFilterBefore(new JwtParserFilter(jwtService), UsernameAndPasswordSignInSecurityFilter.class);
+                })
+                .csrf().disable()
+                .cors().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().addFilter(new UsernameAndPasswordSignInSecurityFilter(authenticationManager, jwtService))
+                .addFilterBefore(new JwtParserFilter(jwtService), UsernameAndPasswordSignInSecurityFilter.class);
         return http.build();
     }
 
