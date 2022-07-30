@@ -10,12 +10,17 @@ import com.zobicfilip.springjwtv2.model.User;
 import com.zobicfilip.springjwtv2.repository.RoleRepository;
 import com.zobicfilip.springjwtv2.repository.RoleUserRepository;
 import com.zobicfilip.springjwtv2.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.security.auth.login.AccountNotFoundException;
+import java.util.UUID;
 
 
 @Service
@@ -24,13 +29,15 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
 
+    private final UserService userService;
+
     private final RoleRepository roleRepository;
 
     private final RoleUserRepository roleUserRepository;
 
     private final PasswordEncoder passwordEncoder;
 
-    private final JWTService jwtService;
+    private final JWTService<Jws<Claims>> jwtService;
 
     @Override
     @SneakyThrows
@@ -44,12 +51,11 @@ public class AuthServiceImpl implements AuthService {
                 .findRoleByTitle("ROLE_USER")
                 .orElseThrow(() -> new InternalError("ROLE_USER does not exist but should"));
 
+        // Might not be worth wasted time
 //        UUID userId = UUID.randomUUID();
 
-        // TODO fix this
+        // Creates User
         User user = User.builder()
-//                .id(userId)
-//                .roles(List.of(new RoleUser(roleUserCompKey))) THIS does not work there could be a workaround but i did not find it
                 .countryTag(userDto.getCountryTag())
                 .dateOfBirth(userDto.getDateOfBirth())
                 .email(userDto.getEmail())
@@ -58,21 +64,26 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .build();
         user = this.userRepository.save(user);
+
+        // Create role permission
         RoleUserCompKey roleUserCompKey = new RoleUserCompKey(userRole.getTitle(), user.getId());
         RoleUser roleUser = roleUserRepository.save(new RoleUser(roleUserCompKey));
-
-        // # 3Way TODO find a better way for it not to be null
-        /// ????
-        // # 2Way
         roleUser = roleUserRepository.save(roleUser);
+
+        // Modify the dto so we receive both
         user.addRole(roleUser);
         roleUser.setUser(user);
         roleUser.setRole(userRole);
-        // # 1Way
-//        user.addRole(roleUser);
-//        user = this.userRepository.save(user);
         return jwtService.generateRefreshAndAccessToken(user.getId(),
                 user.getRolesAndAuthoritiesFormatted(),
                 user.getUsername(), user.getEmail());
+    }
+
+    @Override
+    public Pair<String, String> generateTokens(String refreshToken) throws AccountNotFoundException {
+        // TODO password reset redis cache check and or verification token check
+        UUID userId = UUID.fromString(jwtService.readRefreshToken(refreshToken).getBody().getSubject());
+        User user = userService.findUserById(userId);
+        return jwtService.generateRefreshAndAccessToken(userId, user.getRolesAndAuthoritiesFormatted(), user.getUsername(), user.getEmail());
     }
 }
