@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Repeatable(UniqueEmail.List.class)
 @Documented
-@Constraint(validatedBy = UniqueEmailPatternValidator.class)
+@Constraint(validatedBy = UniqueEmailValidator.class)
 public @interface UniqueEmail {
 
     String message() default "Email is taken";

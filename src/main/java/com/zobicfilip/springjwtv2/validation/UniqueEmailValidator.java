@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.security.auth.login.AccountNotFoundException;
 
-public class UniqueEmailPatternValidator implements ConstraintValidator<UniqueEmail, String> {
+public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
 
 
     private boolean ignoreRuleIfSameAsSecurityContextEmail;
