@@ -29,5 +29,7 @@ public interface UserService {
 
     User findUserById(UUID userId) throws AccountNotFoundException;
 
-    // controller should have button that checks security context id, permissions and parameter id
+    User findUserByUsername(String username) throws AccountNotFoundException;
+
+    // controller should have preauthorized that checks security context id, permissions and parameter id
 }

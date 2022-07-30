@@ -34,6 +34,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserByUsername(String username) throws AccountNotFoundException {
+        return userRepository.findUserByUsername(username).orElseThrow(() -> new AccountNotFoundException("Account with provided username does not exist."));
+    }
+
+    @Override
     public User patchUser(UUID userId, String newPassword, Set<String> newRoles, Boolean enabled) throws AccountNotFoundException { // multiple controller entrances
         throw new UnsupportedOperationException();
     }
