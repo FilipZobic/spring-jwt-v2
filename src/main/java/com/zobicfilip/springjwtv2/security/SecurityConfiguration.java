@@ -27,7 +27,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, JWTService<Jws<Claims>> jwtService) throws Exception {
         http
                 .authorizeHttpRequests(authz -> {
-                    authz.antMatchers("/api/auth/signIn", "/api/auth/signUp").permitAll()
+                    authz.antMatchers("/api/auth/signIn", "/api/auth/signUp", "/api/auth/refresh").permitAll()
                             .anyRequest().authenticated();
                 })
                 .csrf().disable()
