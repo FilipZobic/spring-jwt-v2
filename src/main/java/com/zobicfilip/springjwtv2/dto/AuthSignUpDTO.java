@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import static com.zobicfilip.springjwtv2.dto.ConstraintOrder.*;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,10 +22,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AuthSignUpDTO {
 
-//    @NotBlank(message = "Username is required")
-//    @Size(message = "Username should be between 5 and 20 characters", min = 5, max = 20, groups = Second.class)
-//    @UsernameRegex(groups = Third.class) //"^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$"
-//    @UniqueUsername(groups = Fourth.class) // checks database needs autowire
+    @NotBlank(message = "Username is required")
+    @Size(message = "Username should be between 5 and 20 characters", min = 5, max = 20, groups = Second.class)
+    @UsernameRegex(groups = Third.class)
+    @UniqueUsername(ignoreRuleIfSameAsSecurityContextUsername = false, groups = Fourth.class) // checks database needs autowire
     private String username;
 
     @NotBlank(message = "Email is required")
