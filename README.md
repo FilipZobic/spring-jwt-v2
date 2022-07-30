@@ -1,18 +1,20 @@
 ## Features
 
 * JWT
-* Flyway
-* Hibernate / Data JPA
+* Hibernate / Flyway / Data JPA
   * Queries
   * Indexing
   * Caching
   * Composite Key Structure
 * Proper PostgresSQL configuration & syntax
-* Integration Testing (h2m)
-* Unit testing
-* Mocking
-* Reflection (in testing)
+* Testing
+  * Mocking
+  * Reflection (in testing)
+  * Unit testing
+  * Integration Testing (h2m)
 * Generics (JWTService)
+* Custom DTO parameter validation
+* Custom PreAuthorize
 ### Migration generated roles
 * Admin
 * Moderator
@@ -30,3 +32,8 @@ __Username & password Authentication filter__
 
 __Database Access__
 * We needed to add @Transactional to userDetailsService.loadUserByUsername since we are using lazy loading we could use eager loading which would allow us to remove the annotation
+
+__Input validation__
+* @Validated(ValidationSequence.class) @RequestBody AuthSignUpDTO signUpDTO we use this and example: @Annotation(... groups = First.class) to have an order in validation for example check if its not null then check if valid data format
+* We defined our custom annotations to avoid code duplication and more control over our input fields
+* Currently, UniqueEmail & UniqueUsername annotations check the database we also index those columns for faster search (UserService autowired)
