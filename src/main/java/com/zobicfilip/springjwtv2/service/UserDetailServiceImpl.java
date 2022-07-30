@@ -19,7 +19,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
     @Override
-    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         com.zobicfilip.springjwtv2.model.User user = userRepository.findUserByEmail(username).orElseThrow(() -> new UsernameNotFoundException(""));
         return new PrincipleUser(user.getUsername(),

@@ -61,7 +61,7 @@ public class User {
     private Boolean enabled;
 
     @OneToMany(cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY,
+    fetch = FetchType.EAGER,
     orphanRemoval = true,
     /*mappedBy = "user"*/ // attribute in
     mappedBy = "id.userId") // attribute in composite key

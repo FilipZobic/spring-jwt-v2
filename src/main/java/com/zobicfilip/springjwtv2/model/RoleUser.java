@@ -32,7 +32,7 @@ public class RoleUser {
     private User user;
     // this happens because we reference it by id column in embedded key so we need insertable and updatable when saving use keys
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", referencedColumnName = "title", insertable = false, updatable = false) // manytomany table ide
     private Role role;
 
