@@ -1,6 +1,7 @@
 package com.zobicfilip.springjwtv2.controller;
 
 import com.zobicfilip.springjwtv2.dto.BadParameterInputDTO;
+import com.zobicfilip.springjwtv2.dto.ExceptionDTO;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,29 +15,39 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleExceptions(AccessDeniedException exception, WebRequest webRequest) {
-        var response = new HashMap<String, Object>();
-        response.put("message", "Forbidden");
-        response.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        response.put("status", HttpStatus.FORBIDDEN.value());
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    public ResponseEntity<ExceptionDTO> handleExceptions(AccessDeniedException exception, WebRequest webRequest) {
+        return new ResponseEntity<>(
+                new ExceptionDTO(
+                        "Forbidden",
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                        HttpStatus.FORBIDDEN.value()),
+                HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnsupportedOperationException.class)
+    public ResponseEntity<ExceptionDTO> handleExceptions(UnsupportedOperationException exception, WebRequest webRequest) {
+        return new ResponseEntity<>(
+                new ExceptionDTO(
+                        "Operation not yet supported",
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                        HttpStatus.BAD_REQUEST.value()),
+                HttpStatus.BAD_REQUEST);
     }
 
     // TODO use local
     @ExceptionHandler(Throwable.class)
-    public ResponseEntity<Object> handleExceptions(Throwable exception, WebRequest webRequest) {
+    public ResponseEntity<ExceptionDTO> handleExceptions(Throwable exception, WebRequest webRequest) {
         exception.printStackTrace();
-        var response = new HashMap<String, Object>();
-        response.put("message", "Something went wrong");
-        response.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+                new ExceptionDTO(
+                        "Something went wrong",
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                        HttpStatus.BAD_REQUEST.value()),
+                HttpStatus.BAD_REQUEST);
     }
 
     @Override
