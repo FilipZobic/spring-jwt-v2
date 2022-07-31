@@ -15,6 +15,7 @@ import io.jsonwebtoken.Jws;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import javax.security.auth.login.AccountNotFoundException;
 import java.util.UUID;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -44,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public Pair<String, String> registerUser(AuthSignUpDTO userDto) {
 
+        log.info("Attempting to register user");
         userRepository.findUserByEmailOrUsername(userDto.getEmail(), userDto.getUsername())
                 .ifPresent(usr -> { throw new RegistrationFailedException(userDto, usr, RegErrorType.ALREADY_EXISTS); });
 
@@ -74,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
         user.addRole(roleUser);
         roleUser.setUser(user);
         roleUser.setRole(userRole);
+        log.info("Successfully registered user id: {}", user.getId());
         return jwtService.generateRefreshAndAccessToken(user.getId(),
                 user.getRolesAndAuthoritiesFormatted(),
                 user.getUsername(), user.getEmail());
