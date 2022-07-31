@@ -11,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JWTService tokenService;
@@ -47,6 +49,7 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
+            log.info("Attempting user authentication");
             AuthSignInDTO authenticationRequest = new ObjectMapper()
                     .readValue(request.getInputStream(), AuthSignInDTO.class);
             String email = authenticationRequest.getEmail();
@@ -57,6 +60,7 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
                     password);
             return getAuthenticationManager().authenticate(authentication);
         } catch (IOException io) {
+            log.warn("Could not read credentials");
             throw new AuthenticationCredentialsNotFoundException("Could not read credentials");
         }
     }
@@ -68,6 +72,7 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
         responseBody.put("message", "Authentication failed");
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        log.warn("Failed authenticating user message: {}", failed.getMessage());
         mapper.writeValue(response.getOutputStream(), responseBody);
     }
 
@@ -92,6 +97,7 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
         response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, "Bearer " + accessToken);
         response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME, "Bearer " + refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
+        log.info("Successfully authenticated user id: {}", id);
         mapper.writeValue(response.getOutputStream(), tokens);
     }
 }

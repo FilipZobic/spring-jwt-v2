@@ -14,6 +14,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 public class JwtParserFilter extends OncePerRequestFilter {
 
     private final JWTService<Jws<Claims>> jwtService;
@@ -69,6 +71,7 @@ public class JwtParserFilter extends OncePerRequestFilter {
                 responseBody.put("message", message);
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                log.warn(message);
                 mapper.writeValue(response.getOutputStream(), responseBody);
             }
         }
