@@ -2,6 +2,7 @@ package com.zobicfilip.springjwtv2.controller;
 
 import com.zobicfilip.springjwtv2.dto.BadParameterInputDTO;
 import com.zobicfilip.springjwtv2.dto.ExceptionDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -16,10 +17,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionDTO> handleExceptions(AccessDeniedException exception, WebRequest webRequest) {
+        log.warn("Access denied");
         return new ResponseEntity<>(
                 new ExceptionDTO(
                         "Forbidden",
@@ -30,6 +33,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ExceptionDTO> handleExceptions(UnsupportedOperationException exception, WebRequest webRequest) {
+        log.error("Unsupported operation accessed on URL: {}", webRequest.getContextPath());
         return new ResponseEntity<>(
                 new ExceptionDTO(
                         "Operation not yet supported",
@@ -41,7 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // TODO use local
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ExceptionDTO> handleExceptions(Throwable exception, WebRequest webRequest) {
-        exception.printStackTrace();
+        log.error("Unhandled error name: {} message {}", exception.getClass().getName(), exception.getMessage(), exception);
         return new ResponseEntity<>(
                 new ExceptionDTO(
                         "Something went wrong",
@@ -52,6 +56,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return new ResponseEntity<>(new BadParameterInputDTO(ex), HttpStatus.BAD_REQUEST);
+        BadParameterInputDTO badParameterInputDTO = new BadParameterInputDTO(ex);
+        log.warn("Validation constraint violation count: {} errors: {}", ex.getErrorCount(), badParameterInputDTO.getValidation());
+        return new ResponseEntity<>(badParameterInputDTO, HttpStatus.BAD_REQUEST);
     }
 }
