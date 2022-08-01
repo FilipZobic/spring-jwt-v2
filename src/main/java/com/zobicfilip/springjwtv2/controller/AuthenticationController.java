@@ -44,11 +44,12 @@ public class AuthenticationController {
     }
 
     private HashMap<String, String> generateBodyAndPopulateHeader(HttpServletResponse response, Pair<String, String> pair) {
+        String bearerToken = "Bearer " + pair.getValue();
         response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME, pair.getKey());
-        response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, pair.getValue());
+        response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, bearerToken);
         HashMap<String, String> tokenResponse = new HashMap<>();
         tokenResponse.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME, pair.getKey());
-        tokenResponse.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, pair.getValue());
+        tokenResponse.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, bearerToken);
         return tokenResponse;
     }
 }

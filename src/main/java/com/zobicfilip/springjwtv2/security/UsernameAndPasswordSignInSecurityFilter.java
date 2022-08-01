@@ -92,10 +92,11 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
         String refreshToken = this.tokenService.generateRefreshToken(id);
 
         Map<String, String> tokens = new HashMap<>();
-        tokens.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, "Bearer " + accessToken);
-        tokens.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME, "Bearer " + refreshToken);
-        response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, "Bearer " + accessToken);
-        response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME, "Bearer " + refreshToken);
+        String bearerToken = "Bearer " + accessToken;
+        tokens.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, bearerToken);
+        tokens.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME,  refreshToken);
+        response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, bearerToken);
+        response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME,  refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
         log.info("Successfully authenticated user id: {}", id);
         mapper.writeValue(response.getOutputStream(), tokens);
