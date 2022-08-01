@@ -1,12 +1,14 @@
 package com.zobicfilip.springjwtv2.service;
 
-import com.zobicfilip.springjwtv2.exception.UnsupportedFileException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
@@ -18,11 +20,33 @@ public abstract class FileStorageService {
         PNG
     }
 
-    // if we know header byte position locations we will be able just to get those needed bytes
-    // Pair.of(start, length) ints for PNG,JPEG,JPG and just select those
-    protected static final int[] PNG_FIRST_EIGHT_BYTES = new int[]{137, 80, 78, 71, 13, 10, 26, 10};
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    protected static class FileImageMetadata {
+        private final int[] fileSignatureBytes;
+        private final ImageType type;
+        private final Pair<Integer, Integer> fileSignatureLocation;
+        private final Pair<Integer, Integer> widthLocation;
+        private final Pair<Integer, Integer> heightLocation;
+        private final String contentHeaderName;
+        private final Pair<Integer, Integer> contentHeaderLocation;
+        private final int minimumRequiredBytes;
+    }
 
-    protected static final Map<ImageType, int[]> IMAGE_MAP = Map.of(ImageType.PNG, PNG_FIRST_EIGHT_BYTES);
+    protected static final Map<ImageType, FileImageMetadata> IMAGE_IMAGE_BYTES_MAP = Map.of(
+            ImageType.PNG, FileImageMetadata.builder()
+                    .contentHeaderName("IHDR")
+                    .minimumRequiredBytes(25)
+                    .fileSignatureBytes(new int[]{137, 80, 78, 71, 13, 10, 26, 10})
+                    .type(ImageType.PNG)
+                    .fileSignatureLocation(Pair.of(0, 8))
+                    .widthLocation(Pair.of(16, 20))
+                    .heightLocation(Pair.of(20, 24))
+                    .contentHeaderLocation(Pair.of(12,16))
+                .build()
+    );
+
 
     /**
      *
@@ -31,35 +55,44 @@ public abstract class FileStorageService {
      * @throws IOException if image not one of supported files (png)
      */
     public static Dimension getImageDimension(byte[] bytes, ImageType type) throws IOException {
-        InputStream is = new ByteArrayInputStream(bytes);
-
-        int[] imageByte = IMAGE_MAP.get(type);
-
-        int index = 0;
-        while (index < imageByte.length) {
-            int nextByte = is.read();
-            if (nextByte != imageByte[index]) {
-                log.warn("Image mime cache is not {}({}) index: {} value: {}", type.toString(), Arrays.toString(imageByte), index, nextByte);
-                throw new UnsupportedFileException();
+        FileImageMetadata metadata = IMAGE_IMAGE_BYTES_MAP.get(type);
+        if (bytes == null || metadata.getMinimumRequiredBytes() > bytes.length) {
+            log.warn("Invalid file");
+            throw new IOException();
+        }
+        // Check file type bytes
+        Pair<Integer, Integer> sigLoc = metadata.getFileSignatureLocation();
+        byte[] rawSignature = ArrayUtils.subarray(bytes, sigLoc.getLeft(), sigLoc.getRight());
+        int[] expectedSignature = metadata.getFileSignatureBytes();
+        for (int i=0; i<rawSignature.length; i++) {
+            if ((rawSignature[i]& 0xff) != expectedSignature[i]) {
+                log.warn("Image file type signature mismatch expected: {} actual: {}",
+                        Arrays.toString(expectedSignature),
+                        Arrays.toString(rawSignature));
+                throw new IOException();
             }
-            index++;
+        }
+        // Check header signature text
+        Pair<Integer, Integer> headLoc = metadata.getContentHeaderLocation();
+        String fileHeaderName = new String(ArrayUtils.subarray(bytes, headLoc.getLeft(), headLoc.getRight()));
+        if (!fileHeaderName.equalsIgnoreCase(metadata.getContentHeaderName())) {
+            log.warn("Mismatch header names expected: {} actual: {}", metadata.getContentHeaderName(), fileHeaderName);
+            throw new IOException();
         }
 
-//        int IHDRLengthSection = ByteBuffer.wrap(is.readNBytes(4)).getInt();
-        is.skip(4);
-        index = 0;
-        char[] blockType = new char[4];
-        while (index < 4) {
-            blockType[index] = (char) is.read();
-            index++;
-        }
-        if (!new String(blockType).equalsIgnoreCase("IHDR")) {
-            throw new UnsupportedFileException();
-        }
-        // data
-        int width = ByteBuffer.wrap(is.readNBytes(4)).getInt();
-        int height = ByteBuffer.wrap(is.readNBytes(4)).getInt();
-        is.close();
+        Pair<Integer, Integer> widthLoc = metadata.getWidthLocation();
+        int width = ByteBuffer.wrap(
+                ArrayUtils.subarray(bytes, widthLoc.getLeft(), widthLoc.getRight())
+        ).getInt();
+
+        Pair<Integer, Integer> heightLoc = metadata.getHeightLocation();
+        int height = ByteBuffer.wrap(
+                ArrayUtils.subarray(bytes, heightLoc.getLeft(), heightLoc.getRight())
+        ).getInt();
         return new Dimension(width, height);
     }
+
+    public abstract boolean saveFile(byte[] content, String type, String name);
+    public abstract byte[] loadFile(String name);
+    public abstract boolean getFile(boolean name);
 }
