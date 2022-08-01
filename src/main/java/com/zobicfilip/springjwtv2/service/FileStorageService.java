@@ -8,9 +8,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -34,18 +37,24 @@ public abstract class FileStorageService {
         private final int minimumRequiredBytes;
     }
 
-    protected static final Map<ImageType, FileImageMetadata> IMAGE_IMAGE_BYTES_MAP = Map.of(
-            ImageType.PNG, FileImageMetadata.builder()
-                    .contentHeaderName("IHDR")
-                    .minimumRequiredBytes(25)
-                    .fileSignatureBytes(new int[]{137, 80, 78, 71, 13, 10, 26, 10})
-                    .type(ImageType.PNG)
-                    .fileSignatureLocation(Pair.of(0, 8))
-                    .widthLocation(Pair.of(16, 20))
-                    .heightLocation(Pair.of(20, 24))
-                    .contentHeaderLocation(Pair.of(12,16))
-                .build()
-    );
+    protected static final Map<ImageType, FileImageMetadata> IMAGE_IMAGE_BYTES_MAP = new HashMap<>();
+
+    static {
+        int[] fileSignatureBytes = {137, 80, 78, 71, 13, 10, 26, 10};
+        int start = 0;
+        IMAGE_IMAGE_BYTES_MAP.put(
+                ImageType.PNG, FileImageMetadata.builder()
+                        .contentHeaderName("IHDR")
+                        .minimumRequiredBytes(25)
+                        .fileSignatureBytes(fileSignatureBytes)
+                        .type(ImageType.PNG)
+                        .fileSignatureLocation(Pair.of(start, start+fileSignatureBytes.length))
+                        .widthLocation(Pair.of(16, 16+4))
+                        .heightLocation(Pair.of(20, 20+4))
+                        .contentHeaderLocation(Pair.of(12,12+4))
+                        .build()
+        );
+    }
 
 
     /**
@@ -93,6 +102,6 @@ public abstract class FileStorageService {
     }
 
     public abstract boolean saveFile(byte[] content, String type, String name);
-    public abstract byte[] loadFile(String name);
-    public abstract boolean getFile(boolean name);
+    public abstract byte[] getFile(String name) throws FileNotFoundException;
+    public abstract boolean deleteFile(String name) throws NoSuchFileException;
 }
