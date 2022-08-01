@@ -9,8 +9,8 @@ public interface SecurityUtil {
     String ACCESS_HEADER_TOKEN_NAME = "AccessToken";
     String REFRESH_HEADER_TOKEN_NAME = "RefreshToken";
     
-    long getAccessTokenLifespan();
-    long getRefreshTokenLifespan();
+    long getAccessLifespan();
+    long getRefreshLifespan();
     SecretKey getKey();
     SecretKey getKey(String password);
     Date getCutoffDate();

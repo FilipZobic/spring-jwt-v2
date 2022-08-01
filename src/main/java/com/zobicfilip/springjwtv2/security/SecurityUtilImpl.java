@@ -1,57 +1,45 @@
 package com.zobicfilip.springjwtv2.security;
 
+import com.zobicfilip.springjwtv2.model.SecurityProperties;
 import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 public class SecurityUtilImpl implements SecurityUtil {
-    private final Environment environment;
-    @Value("${security.token.secret}")
-    private String secretKey;
 
-    @Getter private long accessTokenLifespan;
-    @Getter private long refreshTokenLifespan;
-    @Getter private SecretKey key;
+    private final String secretKey;
+    @Getter private final long accessLifespan;
+    @Getter private final long refreshLifespan;
+    @Getter private final SecretKey key;
 
-    @Getter private Date cutoffDate;
+    @Getter private final Date cutoffDate;
 
-    @PostConstruct
-    private void postConstruct() throws ParseException {
-        this.key = Keys.hmacShaKeyFor(this.secretKey.getBytes());
-        this.accessTokenLifespan = Long.parseLong(environment.resolvePlaceholders("${security.access.alive.minutes}")) * 1000 * 60;
-        this.refreshTokenLifespan = Long.parseLong(environment.resolvePlaceholders("${security.refresh.alive.minutes}")) * 1000 * 60;
-//        this.secretKey = environment.resolvePlaceholders("${security.jwt.secret}");
+    @Autowired
+    public SecurityUtilImpl(SecurityProperties properties) throws ParseException {
+        this.secretKey = properties.secret();
+        this.key = Keys.hmacShaKeyFor(properties.secret().getBytes());
+        this.accessLifespan = properties.accessLifespan() * 1000 * 60;
+        this.refreshLifespan = properties.refreshLifespan() * 1000 * 60;
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        String cutOffDate = environment.resolvePlaceholders("${security.token.cutoffDate}");
-        try {
-            if (StringUtils.isBlank(cutOffDate)) throw new ParseException("Date is blank", -1);
-            this.cutoffDate = dateFormatter.parse(cutOffDate);
-        } catch (ParseException e) {
+        if (StringUtils.isBlank(properties.cutoffDate())) {
             this.cutoffDate = dateFormatter.parse(
-                    dateFormatter.format(
-                            new Date(System.currentTimeMillis() - refreshTokenLifespan*2)
-                    )
+                    dateFormatter.format(new Date(System.currentTimeMillis() - refreshLifespan *2))
             );
+            return;
         }
+        this.cutoffDate = dateFormatter.parse(properties.cutoffDate());
     }
 
     @Override

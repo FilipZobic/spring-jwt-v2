@@ -31,7 +31,7 @@ public class JWTServiceJjwtImpl implements JWTService<Jws<Claims>> {
                 .claim("email", email)
                 .claim("permissions", (roles instanceof Set<String> ? roles : new HashSet<>(roles)))
                 .signWith(securityUtil.getKey())
-                .setExpiration(new Date(System.currentTimeMillis() + securityUtil.getAccessTokenLifespan()))
+                .setExpiration(new Date(System.currentTimeMillis() + securityUtil.getAccessLifespan()))
                 .compact();
     }
 
@@ -43,7 +43,7 @@ public class JWTServiceJjwtImpl implements JWTService<Jws<Claims>> {
                 .setId(UUID.randomUUID().toString())
                 .setSubject(userId.toString())
                 .signWith(securityUtil.getKey())
-                .setExpiration(new Date(System.currentTimeMillis() + securityUtil.getRefreshTokenLifespan()))
+                .setExpiration(new Date(System.currentTimeMillis() + securityUtil.getRefreshLifespan()))
                 .compact();
     }
 

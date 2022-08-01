@@ -22,12 +22,9 @@ spring:
     user: root
     password: root
 security:
-  access:
-    alive:
-      minutes: 15
-  refresh:
-    alive:
-      minutes: 10080
   token:
+#    Lifespan's are in minutes
+    accessLifespan: 15
+    refreshLifespan: 10080
     secret: qqdgqswyp2dfhiudhfiouawkomv2ps4yoxvmp24oqxypv2yoqxpv4oqmpvx4ovy61-906-1x0-v61jqt34qterqwteqwrt
     cutoffDate: 2023-01-01

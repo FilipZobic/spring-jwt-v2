@@ -42,14 +42,14 @@ class JWTServiceImplTest {
     static SecurityUtil mockSecurityUtil(String secret) {
         SecurityUtil util = Mockito.mock(SecurityUtil.class);
         long lifeSpanAccess = 10L;
-        when(util.getAccessTokenLifespan())
+        when(util.getAccessLifespan())
                 .thenReturn(lifeSpanAccess * 1000 * 60);
         when(util.getCutoffDate())
                 .thenReturn(new Date(System.currentTimeMillis()/1000-lifeSpanAccess*1000*60));
         when(util.getKey())
                 .thenReturn(Keys.hmacShaKeyFor(secret.getBytes()));
         long lifeSpanRefresh = 1080L;
-        when(util.getRefreshTokenLifespan())
+        when(util.getRefreshLifespan())
                 .thenReturn(lifeSpanRefresh * 1000 * 60);
         return util;
     }
