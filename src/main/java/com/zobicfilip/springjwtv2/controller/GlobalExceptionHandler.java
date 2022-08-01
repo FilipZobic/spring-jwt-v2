@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
@@ -29,6 +30,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.FORBIDDEN.value()),
                 HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ExceptionDTO> handleExceptions(MaxUploadSizeExceededException exception, WebRequest webRequest) {
+        log.warn("Maximum multipart file size upload exceeded size: {}", exception.getMaxUploadSize());
+        return new ResponseEntity<>(
+                new ExceptionDTO(
+                        "File size exceeds constraint",
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                        HttpStatus.BAD_REQUEST.value()),
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnsupportedOperationException.class)
