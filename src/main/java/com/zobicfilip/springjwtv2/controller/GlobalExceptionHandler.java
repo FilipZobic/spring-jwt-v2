@@ -2,6 +2,7 @@ package com.zobicfilip.springjwtv2.controller;
 
 import com.zobicfilip.springjwtv2.dto.BadParameterInputDTO;
 import com.zobicfilip.springjwtv2.dto.ExceptionDTO;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(
                 new ExceptionDTO(
                         "File size exceeds constraint",
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                        HttpStatus.BAD_REQUEST.value()),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ExceptionDTO> handleExceptions(ConstraintViolationException exception, WebRequest webRequest) {
+        log.warn("ConstraintViolationException message: {}", exception.getMessage());
+        StringBuilder sb = new StringBuilder(exception.getMessage());
+        int indexOf = exception.getMessage().indexOf(":");
+        if (indexOf != -1) {
+            sb.delete(0, indexOf+1);
+        }
+        return new ResponseEntity<>(
+                new ExceptionDTO(
+                        sb.toString().trim(),
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.BAD_REQUEST.value()),
                 HttpStatus.BAD_REQUEST);
