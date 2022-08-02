@@ -22,7 +22,7 @@ public class ServletRequestListenerImpl implements ServletRequestListener {
         // Problem when starting new threads from thread with ID
         ThreadContext.put("X_PS_REQUEST_ID", UUID.randomUUID().toString());
         if (sre.getServletRequest() instanceof HttpServletRequest request) {
-            log.info("IP: {} URL: {} Method: {}", request.getRemoteAddr(), request.getRequestURL().toString(), request.getMethod());
+            log.info("IP: [{}] URL: [{}] Method: [{}]", request.getRemoteAddr(), request.getRequestURL().toString(), request.getMethod());
         }
     }
 }
