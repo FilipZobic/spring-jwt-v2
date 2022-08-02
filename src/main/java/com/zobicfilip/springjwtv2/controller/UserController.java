@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,10 +37,10 @@ public class UserController {
 
     /**
      *
-     * @param file only allow png files conversion/compression should be done on client side to reduce load on server
+     * @param file only allow png files conversion/compression should be done on client side to reduce load on server, only checks constraints
      * @param userId
      */
-//    @PreAuthorize("isSelfUpdate(userId) || hasAnyAuthority('**', 'USER_**', 'USER_ALL_P_IMG')")
+    @PreAuthorize("isSelf(#userId) || hasAnyAuthorityCustom('USER_**', 'USER_ALL_PROF_IMG_CRUD')")
     @PatchMapping(path = "{userId}/image/upload",
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -76,7 +77,7 @@ public class UserController {
         throw new FailedProfilePictureOperationException(HttpStatus.BAD_REQUEST, "Failed saving image");
     }
 
-//    @PreAuthorize()
+    @PreAuthorize("hasAnyAuthorityCustom('USER_**', 'USER_ALL_SHARED_R' ,'USER_ALL_PROF_IMG_CRUD') || isSelf(#userId)")
     @GetMapping(path = "{userId}/image/download",
     produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> profilePictureDownload(@UserExists @PathVariable UUID userId) throws FailedProfilePictureOperationException {
@@ -91,7 +92,7 @@ public class UserController {
         }
     }
 
-    //    @PreAuthorize()
+    @PreAuthorize("isSelf(#userId) || hasAnyAuthorityCustom('USER_**', 'USER_ALL_PROF_IMG_CRUD')")
     @DeleteMapping(path = "{userId}/image/delete")
     public ResponseEntity<GoodResponseDTO> profilePictureDelete(@UserExists @PathVariable UUID userId) throws FailedProfilePictureOperationException {
         String fileName = userId.toString() + ".png";
