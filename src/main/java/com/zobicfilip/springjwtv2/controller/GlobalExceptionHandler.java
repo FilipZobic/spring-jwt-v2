@@ -2,6 +2,7 @@ package com.zobicfilip.springjwtv2.controller;
 
 import com.zobicfilip.springjwtv2.dto.BadParameterInputDTO;
 import com.zobicfilip.springjwtv2.dto.ExceptionDTO;
+import com.zobicfilip.springjwtv2.exception.FailedProfilePictureOperationException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -22,6 +23,17 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(FailedProfilePictureOperationException.class)
+    public ResponseEntity<ExceptionDTO> handleExceptions(FailedProfilePictureOperationException exception, WebRequest webRequest) {
+        return new ResponseEntity<>(
+                new ExceptionDTO(
+                        exception.getMessage(),
+                        LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
+                        exception.getStatus().value()),
+                exception.getStatus());
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionDTO> handleExceptions(AccessDeniedException exception, WebRequest webRequest) {
         log.warn("Access denied");
