@@ -57,6 +57,7 @@ public class JwtParserFilter extends OncePerRequestFilter {
 
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(principleUser, null, principleUser.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                log.info("SecurityContext UserId: [{}]", principleUser.getUserId().toString());
                 filterChain.doFilter(request, response);
             } catch (Exception e) {
                 String message = "Unauthorized";
