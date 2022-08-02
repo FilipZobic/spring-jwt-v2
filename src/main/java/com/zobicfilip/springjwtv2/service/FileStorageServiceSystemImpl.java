@@ -44,9 +44,9 @@ public class FileStorageServiceSystemImpl extends FileStorageService {
         );
         try {
             if (Files.exists(saveTo)) {
-                log.info("Overwriting image on filesystem");
+                log.info("Overwriting image");
             } else {
-                log.info("Writing image on filesystem");
+                log.info("Writing image");
             }
             Files.write(saveTo, content, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
             log.info("Successfully wrote image");
@@ -67,7 +67,9 @@ public class FileStorageServiceSystemImpl extends FileStorageService {
                 log.info("Successfully read image on filesystem");
                 return bytes;
             }
+            throw new FileNotFoundException();
         } catch (FileNotFoundException e) {
+            log.warn("Image not found {}", nameWithExtension);
             throw e;
         } catch (IOException e) {
             log.error("Error occurred on reading image msg: {}", e.getMessage(), e);
@@ -77,11 +79,14 @@ public class FileStorageServiceSystemImpl extends FileStorageService {
 
     @Override
     public boolean deleteFile(String nameWithExtension) throws NoSuchFileException {
+        log.info("Deleting image on filesystem");
         Path path = Path.of(profileImagesPath, nameWithExtension);
         try {
             Files.delete(path);
             log.info("Image was deleted successfully");
+            return true;
         } catch (NoSuchFileException e) {
+            log.warn("Image not found {}", nameWithExtension);
             throw e;
         } catch (IOException e) {
             log.error("Error occurred on deleting image msg: {}", e.getMessage(), e);
