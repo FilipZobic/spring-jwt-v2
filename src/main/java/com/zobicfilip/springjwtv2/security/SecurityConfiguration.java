@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jws;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -63,9 +64,21 @@ public class SecurityConfiguration {
 //        builder.authenticationProvider(authenticationProvider);
 //    }
 
+//    @Override
+//    public MethodSecurityExpressionHandler createExpressionHandler() {
+//        // we can set expressions here
+//        return new MethodSecurityExpressionHandlerImpl();
+//    }
+
     // NEW WAY
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public static MethodSecurityExpressionHandler createExpressionHandler() {
+        // we can set expressions here
+        return new MethodSecurityExpressionHandlerImpl();
     }
 }
