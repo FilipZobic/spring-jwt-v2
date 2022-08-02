@@ -28,7 +28,7 @@ public class AuthenticationController {
 
         Pair<String, String> pair = authService.registerUser(signUpDTO);
 
-        HashMap<String, String> tokenResponse = generateBodyAndPopulateHeader(response, pair);
+        HashMap<String, String> tokenResponse = generateBodyAndPopulateHeader(response, pair.getKey(), pair.getValue());
 
         return ResponseEntity.ok(tokenResponse);
     }
@@ -38,17 +38,17 @@ public class AuthenticationController {
 
         Pair<String, String> pair = authService.generateTokens(refreshTokensDTO.refreshToken());
 
-        HashMap<String, String> tokenResponse = generateBodyAndPopulateHeader(response, pair);
+        HashMap<String, String> tokenResponse = generateBodyAndPopulateHeader(response, refreshTokensDTO.refreshToken(), pair.getValue());
 
         return ResponseEntity.ok(tokenResponse);
     }
 
-    private HashMap<String, String> generateBodyAndPopulateHeader(HttpServletResponse response, Pair<String, String> pair) {
-        String bearerToken = "Bearer " + pair.getValue();
-        response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME, pair.getKey());
+    private HashMap<String, String> generateBodyAndPopulateHeader(HttpServletResponse response, String refreshToken, String accessToken) {
+        String bearerToken = "Bearer " + accessToken;
+        response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME, refreshToken);
         response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, bearerToken);
         HashMap<String, String> tokenResponse = new HashMap<>();
-        tokenResponse.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME, pair.getKey());
+        tokenResponse.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME, refreshToken);
         tokenResponse.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, bearerToken);
         return tokenResponse;
     }
