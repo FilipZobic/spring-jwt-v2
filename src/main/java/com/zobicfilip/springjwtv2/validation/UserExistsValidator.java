@@ -15,6 +15,7 @@ public class UserExistsValidator implements ConstraintValidator<UserExists, UUID
 
     @Override
     public boolean isValid(UUID value, ConstraintValidatorContext context) {
+        if (value == null) return false;
         try {
             userService.findUserById(value);
             return true;

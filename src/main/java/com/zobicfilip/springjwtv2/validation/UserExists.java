@@ -18,6 +18,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Constraint(validatedBy = UserExistsValidator.class)
 public @interface UserExists {
+    // TODO add support username, password, id
 
     String message() default "User does not exist";
 
