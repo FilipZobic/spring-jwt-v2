@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zobicfilip.springjwtv2.dto.AuthSignInDTO;
+import com.zobicfilip.springjwtv2.exception.SecurityContextAuthenticationNotFoundException;
 import com.zobicfilip.springjwtv2.model.ExpandedUserDetails;
 import com.zobicfilip.springjwtv2.service.JWTService;
 import com.zobicfilip.springjwtv2.util.Util;
@@ -78,8 +79,13 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-//
-        ExpandedUserDetails principleUser = Util.getUserDetails(authResult);
+        ExpandedUserDetails principleUser;
+        try {
+            principleUser = Util.getUserDetails(authResult);
+        } catch (SecurityContextAuthenticationNotFoundException e) {
+            log.error("Error security context is not populated after successfulAuthentication");
+            throw new RuntimeException(e);
+        }
         String email = principleUser.getEmail();
         UUID id = principleUser.getUserId();
         String username = principleUser.getUsername();

@@ -10,15 +10,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public abstract class Util {
 
-    private static ExpandedUserDetails getUserDetails(Object principal) {
+    private static ExpandedUserDetails getUserDetails(Object principal) throws SecurityContextAuthenticationNotFoundException  {
         if (principal instanceof ExpandedUserDetails principleUser) {
             return principleUser;
         } else {
-            throw new RuntimeException("Principle is not instance of SecurityContextPrinciple");
+            throw new SecurityContextAuthenticationNotFoundException("Principle is not instance of SecurityContextPrinciple");
         }
     }
 
-    public static ExpandedUserDetails getUserDetails(Authentication authentication) {
+    public static ExpandedUserDetails getUserDetails(Authentication authentication) throws SecurityContextAuthenticationNotFoundException  {
+        if (authentication == null) throw new SecurityContextAuthenticationNotFoundException("Authentication is null");
         return getUserDetails(authentication.getPrincipal());
     }
 
