@@ -24,9 +24,15 @@ public class CommandLineRunnerRegisterDevExample implements CommandLineRunner {
 
         String username = "example";
         String email = "example@gmail.com";
-            String password = "123456";
+        String password = "123456";
         if (userRepository.findUserByEmailOrUsername(email, username).isEmpty()) {
-            AuthSignUpDTO dto = new AuthSignUpDTO(username, email, password, "RS", LocalDate.now());
+            AuthSignUpDTO dto = new AuthSignUpDTO(username, email, password, "RS", LocalDate.now(), null, null);
+            authService.registerUser(dto);
+        }
+        String admin = "admin";
+        String adminEmail = "admin@gmail.com";
+        if (userRepository.findUserByEmailOrUsername(adminEmail, admin).isEmpty()) {
+            AuthSignUpDTO dto = new AuthSignUpDTO(admin, adminEmail, password, "RS", LocalDate.now(), null, "ROLE_ADMIN");
             authService.registerUser(dto);
         }
     }
