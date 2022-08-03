@@ -1,8 +1,6 @@
 package com.zobicfilip.springjwtv2.service;
 
 import com.zobicfilip.springjwtv2.dto.AuthSignUpDTO;
-import com.zobicfilip.springjwtv2.exception.RegErrorType;
-import com.zobicfilip.springjwtv2.exception.RegistrationFailedException;
 import com.zobicfilip.springjwtv2.keys.RoleUserCompKey;
 import com.zobicfilip.springjwtv2.model.Role;
 import com.zobicfilip.springjwtv2.model.RoleUser;
@@ -16,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -44,15 +43,15 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @SneakyThrows
     @Transactional
-    public Pair<String, String> registerUser(AuthSignUpDTO userDto) {
+    public Pair<String, String> registerUser(/*@Validated */AuthSignUpDTO userDto) {
+        // DB Constraints are checked by JPA Validator for all but role
 
         log.info("Attempting to register user");
-        userRepository.findUserByEmailOrUsername(userDto.getEmail(), userDto.getUsername())
-                .ifPresent(usr -> { throw new RegistrationFailedException(userDto, usr, RegErrorType.ALREADY_EXISTS); });
 
+        String selectedRole = StringUtils.isNotEmpty(userDto.getRole()) ? userDto.getRole() : "ROLE_USER";
         Role userRole = roleRepository
-                .findRoleByTitle("ROLE_USER")
-                .orElseThrow(() -> new InternalError("ROLE_USER does not exist but should"));
+                .findRoleByTitle(selectedRole)
+                .orElseThrow(() -> new InternalError(String.format("Role %s does not exist",selectedRole)));
 
         // Might not be worth wasted time
 //        UUID userId = UUID.randomUUID();
@@ -62,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
                 .countryTag(userDto.getCountryTag())
                 .dateOfBirth(userDto.getDateOfBirth())
                 .email(userDto.getEmail())
-                .enabled(true)
+                .enabled((userDto.getEnabled() != null ? userDto.getEnabled() : true))
                 .username(userDto.getUsername())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .build();
@@ -78,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
         roleUser.setUser(user);
         roleUser.setRole(userRole);
         log.info("Successfully registered user id: {}", user.getId());
+        // TODO fix this to get rid of warning
         return jwtService.generateRefreshAndAccessToken(user.getId(),
                 user.getRolesAndAuthoritiesFormatted(),
                 user.getUsername(), user.getEmail());
