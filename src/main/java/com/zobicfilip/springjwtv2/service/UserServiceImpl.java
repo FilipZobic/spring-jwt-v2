@@ -5,13 +5,11 @@ import com.zobicfilip.springjwtv2.dto.UserPatchDTO;
 import com.zobicfilip.springjwtv2.model.User;
 import com.zobicfilip.springjwtv2.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.naming.OperationNotSupportedException;
 import javax.security.auth.login.AccountNotFoundException;
 import java.util.Set;
 import java.util.UUID;
@@ -49,8 +47,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<User> listUsers(Pageable pageable) {
-        throw new UnsupportedOperationException();
+    public Page<User> listUsers(Pageable pageable, String username, String email, String countryTag) {
+        return this.userRepository.findAll(pageable, username, email, countryTag);
     }
 
     @Override

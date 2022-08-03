@@ -19,7 +19,7 @@ public interface UserService {
 
     User createUser(UserCreationDTO userCreationDTO); // ADMIN MODERATOR
 
-    Page<User> listUsers(Pageable pageable); // ADMIN MODERATOR
+    Page<User> listUsers(Pageable pageable, String username, String email, String countryTag);
 
     boolean updatePassword(String newPassword, UUID userId); // PATCH // USER(self)&ADMIN // MODERATOR
 
