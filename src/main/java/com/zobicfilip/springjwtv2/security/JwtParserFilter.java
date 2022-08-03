@@ -45,8 +45,8 @@ public class JwtParserFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String endpoint = request.getRequestURI();
-        if (ignoreEndpoints.contains(endpoint)
-                || SecurityContextHolder.getContext().getAuthentication() != null) {
+        if ((ignoreEndpoints.contains(endpoint) || SecurityContextHolder.getContext().getAuthentication() != null)
+                && request.getHeader("Authorization") == null) {
             filterChain.doFilter(request, response);
         } else {
             try {
