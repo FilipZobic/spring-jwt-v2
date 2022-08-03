@@ -47,4 +47,14 @@ public class RoleUser {
         this.getRole().getPermissions().forEach(p -> set.add(p.getTitle()));
         return set;
     }
+
+    @Override
+    public String toString() {
+        return "RoleUser{" +
+                "id=" + id +
+                ", createdAt=" + createdAt +
+                ", user=" + user +
+                ", role=" + role +
+                '}';
+    }
 }

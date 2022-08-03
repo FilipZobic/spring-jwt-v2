@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Table(name = "application_permission", schema = "auth_db")
 @Entity
@@ -27,4 +28,12 @@ public class Permission {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "title")
     )
     private Collection<Role> roles;
+
+    @Override
+    public String toString() {
+        return "Permission{" +
+                "title='" + title + '\'' +
+                ", roles=" + roles.stream().map(Role::getTitle).collect(Collectors.joining(", ")) +
+                '}';
+    }
 }

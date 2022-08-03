@@ -91,4 +91,20 @@ public class User {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", countryTag='" + countryTag + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", enabled=" + enabled +
+                ", roles=" + getRolesAndAuthoritiesFormatted() +
+                '}';
+    }
 }
