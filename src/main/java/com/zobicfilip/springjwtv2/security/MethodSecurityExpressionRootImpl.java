@@ -32,7 +32,7 @@ public class MethodSecurityExpressionRootImpl extends SecurityExpressionRoot imp
         }
     }
 
-    public boolean hasAnyAuthorityCustom(String rootAuth, String ...authorities) {
+    public boolean hasAnyAuthorityCustom(String ...authorities) {
         ExpandedUserDetails userDetails;
         try {
             userDetails = Util.getUserDetails();
@@ -45,8 +45,11 @@ public class MethodSecurityExpressionRootImpl extends SecurityExpressionRoot imp
         Set<String> secContextAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
         return secContextAuthorities.contains("**")
-                || secContextAuthorities.contains(rootAuth)
                 || expectedAuthorities.stream().anyMatch(secContextAuthorities::contains);
+    }
+
+    public boolean isRequestingDetailsAndHasAnyAuthorityForDetails(boolean requestingDetails, String ...args) {
+        return !requestingDetails || this.hasAnyAuthorityCustom(args);
     }
 
     @Override
