@@ -1,12 +1,22 @@
 package com.zobicfilip.springjwtv2.controller;
 
 import com.zobicfilip.springjwtv2.dto.GoodResponseDTO;
+import com.zobicfilip.springjwtv2.dto.UserPaginationDTO;
 import com.zobicfilip.springjwtv2.exception.FailedProfilePictureOperationException;
+import com.zobicfilip.springjwtv2.model.*;
 import com.zobicfilip.springjwtv2.service.FileStorageService;
+import com.zobicfilip.springjwtv2.service.UserService;
+import com.zobicfilip.springjwtv2.validation.CountryCode;
 import com.zobicfilip.springjwtv2.validation.UserExists;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +30,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.NoSuchFileException;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.zobicfilip.springjwtv2.service.FileStorageService.getImageDimension;
 
@@ -34,6 +46,8 @@ public class UserController {
     private final long maximumByteSizeConstraint = 2 * 1024L * 1024L;
 
     private final FileStorageService fileStorageService;
+
+    private final UserService userService;
 
     /**
      *
@@ -102,5 +116,46 @@ public class UserController {
         } catch (NoSuchFileException e) {
             throw new FailedProfilePictureOperationException(HttpStatus.NOT_FOUND, "Image not found");
         }
+    }
+
+    @PreAuthorize("hasAnyAuthorityCustom('USER_**', 'USER_ALL_SHARED_R')")
+    @GetMapping
+    public ResponseEntity<Page<UserPaginationDTO>> getAllUsers(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @Min (value = 0) @Max (value = 100) @RequestParam(required = false, defaultValue = "50") int size,
+            @RequestParam(required = false) String email, //contains
+            @RequestParam(required = false) String username, // contains
+            @CountryCode (type = CountryCode.Type.ALPHA_2, message = "Country does not exist")@RequestParam(required = false) String countryTag, // match exactly
+            @RequestParam(required = true, defaultValue = "ASC") Sort.Direction order,
+            @RequestParam (required = false, defaultValue = "") Set<UserAttributes> sortBy
+    ) {
+        PageRequest pageRequest = PageRequest.of(
+                page,
+                size,
+                order,
+                sortBy.stream()
+                        .map(a -> a.queryName)
+                        .toArray(String[]::new));
+        Page<User> userPage = userService.listUsers(pageRequest, username, email, countryTag);
+        Page<UserPaginationDTO> response = new PageImpl<>(userPage.getContent().stream().map(a ->
+                    UserPaginationDTO.builder()
+                            .id(a.getId())
+                            .countryTag(a.getCountryTag())
+                            .email(a.getEmail())
+                            .username(a.getUsername())
+                            .dateOfBirth(a.getDateOfBirth())
+                            .rolesAndAuthorities(
+                                    a.getRoles().stream()
+                                            .map(RoleUser::getRole)
+                                            .collect(Collectors.toMap(
+                                                    Role::getTitle,
+                                                    role -> role.getPermissions()
+                                                            .stream().map(Permission::getTitle)
+                                                            .collect(Collectors.toSet())
+                                                    ))
+                            )
+                            .build()).collect(Collectors.toList()),
+                pageRequest, userPage.getTotalElements());
+        return ResponseEntity.ok(response);
     }
 }
