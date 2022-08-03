@@ -127,7 +127,8 @@ public class UserController {
             @RequestParam(required = false) String username, // contains
             @CountryCode (type = CountryCode.Type.ALPHA_2, message = "Country does not exist")@RequestParam(required = false) String countryTag, // match exactly
             @RequestParam(required = true, defaultValue = "ASC") Sort.Direction order,
-            @RequestParam (required = false, defaultValue = "") Set<UserAttributes> sortBy
+            @RequestParam (required = false, defaultValue = "") Set<UserAttributes> sortBy,
+            @RequestParam (required = false, defaultValue = "false") boolean expandedDetails
     ) {
         PageRequest pageRequest = PageRequest.of(
                 page,
@@ -144,6 +145,7 @@ public class UserController {
                             .email(a.getEmail())
                             .username(a.getUsername())
                             .dateOfBirth(a.getDateOfBirth())
+                            .details( expandedDetails ? new UserPaginationDTO.UserPaginationDetailsDTO(a.getCreatedAt(), a.getUpdatedAt(), a.getEnabled()) : null )
                             .rolesAndAuthorities(
                                     a.getRoles().stream()
                                             .map(RoleUser::getRole)
