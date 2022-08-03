@@ -44,4 +44,11 @@ public class AuthSignUpDTO {
     @NotNull(message = "Date of birth is required")
     @LocalDateRange(message = "Date must not be less then 1900-01-01", after = "1899-12-31", groups = Second.class)
     private LocalDate dateOfBirth;
+
+    @HasAuthorityToSet(authorities = {"**", "USER_**", "USER_ALL_ENABLED_U", "USER_ALL_U"})
+    private Boolean enabled;
+
+//    TODO @RolesCanGrantRoles(role = "ROLE_MODERATOR", canSetValue = {"ROLE_USER", "ROLE_MODERATOR"}) or something like that
+    @HasAuthorityToSet(authorities = {"**"}) // needed check otherwise moderator could set admin we could work around this
+    private String role;
 }
