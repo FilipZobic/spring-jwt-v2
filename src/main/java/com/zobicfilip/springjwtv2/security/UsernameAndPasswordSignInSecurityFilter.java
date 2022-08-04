@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zobicfilip.springjwtv2.dto.AuthSignInDTO;
+import com.zobicfilip.springjwtv2.dto.GenericExceptionResponseDTO;
+import com.zobicfilip.springjwtv2.dto.TokensCreatedResponseDTO;
 import com.zobicfilip.springjwtv2.exception.SecurityContextAuthenticationNotFoundException;
 import com.zobicfilip.springjwtv2.model.ExpandedUserDetails;
 import com.zobicfilip.springjwtv2.service.JWTService;
@@ -24,8 +26,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -68,13 +70,10 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
 
     @Override // TODO use local
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
-        responseBody.put("message", "Authentication failed");
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         log.warn("Failed authenticating user message: {}", failed.getMessage());
-        mapper.writeValue(response.getOutputStream(), responseBody);
+        mapper.writeValue(response.getOutputStream(), new GenericExceptionResponseDTO("Authentication failed", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME), HttpStatus.UNAUTHORIZED.value()));
     }
 
     @Override
@@ -97,14 +96,12 @@ public class UsernameAndPasswordSignInSecurityFilter extends UsernamePasswordAut
                 username, email);
         String refreshToken = this.tokenService.generateRefreshToken(id);
 
-        Map<String, String> tokens = new HashMap<>();
         String bearerToken = "Bearer " + accessToken;
-        tokens.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, bearerToken);
-        tokens.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME,  refreshToken);
+        TokensCreatedResponseDTO responseBody = new TokensCreatedResponseDTO(bearerToken, refreshToken);;
         response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, bearerToken);
         response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME,  refreshToken);
         response.setContentType(APPLICATION_JSON_VALUE);
         log.info("Successfully authenticated user id: {}", id);
-        mapper.writeValue(response.getOutputStream(), tokens);
+        mapper.writeValue(response.getOutputStream(), responseBody);
     }
 }

@@ -1,6 +1,8 @@
 package com.zobicfilip.springjwtv2.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -9,18 +11,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
+@NoArgsConstructor
 public class BadParameterInputDTO {
 
     @Getter
-    private final String timestamp;
+    private String timestamp;
 
     @Getter
     private final static String message = "Bad request body";
 
     @Getter
-    private final Validation validation;
+    private Validation validation;
 
-    private record Validation(Map<String, String> errors) {
+
+    public record Validation(Map<String, String> errors) {
     }
 
     public BadParameterInputDTO(MethodArgumentNotValidException ex) {

@@ -1,7 +1,7 @@
 package com.zobicfilip.springjwtv2.controller;
 
 import com.zobicfilip.springjwtv2.dto.BadParameterInputDTO;
-import com.zobicfilip.springjwtv2.dto.ExceptionDTO;
+import com.zobicfilip.springjwtv2.dto.GenericExceptionResponseDTO;
 import com.zobicfilip.springjwtv2.exception.FailedProfilePictureOperationException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +25,9 @@ import java.time.format.DateTimeFormatter;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(FailedProfilePictureOperationException.class)
-    public ResponseEntity<ExceptionDTO> handleExceptions(FailedProfilePictureOperationException exception, WebRequest webRequest) {
+    public ResponseEntity<GenericExceptionResponseDTO> handleExceptions(FailedProfilePictureOperationException exception, WebRequest webRequest) {
         return new ResponseEntity<>(
-                new ExceptionDTO(
+                new GenericExceptionResponseDTO(
                         exception.getMessage(),
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         exception.getStatus().value()),
@@ -35,10 +35,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ExceptionDTO> handleExceptions(AccessDeniedException exception, WebRequest webRequest) {
+    public ResponseEntity<GenericExceptionResponseDTO> handleExceptions(AccessDeniedException exception, WebRequest webRequest) {
         log.warn("Access denied");
         return new ResponseEntity<>(
-                new ExceptionDTO(
+                new GenericExceptionResponseDTO(
                         "Forbidden",
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.FORBIDDEN.value()),
@@ -46,10 +46,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ExceptionDTO> handleExceptions(MaxUploadSizeExceededException exception, WebRequest webRequest) {
+    public ResponseEntity<GenericExceptionResponseDTO> handleExceptions(MaxUploadSizeExceededException exception, WebRequest webRequest) {
         log.warn("Maximum multipart file size upload exceeded size: {}", exception.getMaxUploadSize());
         return new ResponseEntity<>(
-                new ExceptionDTO(
+                new GenericExceptionResponseDTO(
                         "File size exceeds constraint",
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.BAD_REQUEST.value()),
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ExceptionDTO> handleExceptions(ConstraintViolationException exception, WebRequest webRequest) {
+    public ResponseEntity<GenericExceptionResponseDTO> handleExceptions(ConstraintViolationException exception, WebRequest webRequest) {
         log.warn("ConstraintViolationException message: {}", exception.getMessage());
         StringBuilder sb = new StringBuilder(exception.getMessage());
         int indexOf = exception.getMessage().indexOf(":");
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             sb.delete(0, indexOf+1);
         }
         return new ResponseEntity<>(
-                new ExceptionDTO(
+                new GenericExceptionResponseDTO(
                         sb.toString().trim(),
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.BAD_REQUEST.value()),
@@ -73,10 +73,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UnsupportedOperationException.class)
-    public ResponseEntity<ExceptionDTO> handleExceptions(UnsupportedOperationException exception, WebRequest webRequest) {
+    public ResponseEntity<GenericExceptionResponseDTO> handleExceptions(UnsupportedOperationException exception, WebRequest webRequest) {
         log.error("Unsupported operation accessed on URL: {}", webRequest.getContextPath());
         return new ResponseEntity<>(
-                new ExceptionDTO(
+                new GenericExceptionResponseDTO(
                         "Operation not yet supported",
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.BAD_REQUEST.value()),
@@ -85,10 +85,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // TODO use local
     @ExceptionHandler(Throwable.class)
-    public ResponseEntity<ExceptionDTO> handleExceptions(Throwable exception, WebRequest webRequest) {
+    public ResponseEntity<GenericExceptionResponseDTO> handleExceptions(Throwable exception, WebRequest webRequest) {
         log.error("Unhandled error name: {} message {}", exception.getClass().getName(), exception.getMessage(), exception);
         return new ResponseEntity<>(
-                new ExceptionDTO(
+                new GenericExceptionResponseDTO(
                         "Something went wrong",
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME),
                         HttpStatus.BAD_REQUEST.value()),

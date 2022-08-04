@@ -3,6 +3,7 @@ package com.zobicfilip.springjwtv2.security;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zobicfilip.springjwtv2.dto.GenericExceptionResponseDTO;
 import com.zobicfilip.springjwtv2.model.PrincipleUser;
 import com.zobicfilip.springjwtv2.service.JWTService;
 import com.zobicfilip.springjwtv2.util.Util;
@@ -21,8 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -66,14 +67,10 @@ public class JwtParserFilter extends OncePerRequestFilter {
                 } else if (e instanceof MalformedJwtException malformedJwtException) {
                     message = "Token is invalid";
                 }
-
-                Map<String, Object> responseBody = new HashMap<>();
-                responseBody.put("status", HttpStatus.UNAUTHORIZED.value());
-                responseBody.put("message", message);
                 response.setContentType(APPLICATION_JSON_VALUE);
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 log.warn(message);
-                mapper.writeValue(response.getOutputStream(), responseBody);
+                mapper.writeValue(response.getOutputStream(), new GenericExceptionResponseDTO(message, LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME), HttpStatus.UNAUTHORIZED.value()));
             }
         }
     }

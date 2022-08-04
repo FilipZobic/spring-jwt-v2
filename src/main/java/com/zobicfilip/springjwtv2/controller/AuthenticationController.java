@@ -4,6 +4,7 @@ import com.zobicfilip.springjwtv2.dto.AuthSignUpDTO;
 import static com.zobicfilip.springjwtv2.dto.ConstraintOrder.ValidationSequence;
 
 import com.zobicfilip.springjwtv2.dto.RefreshTokensDTO;
+import com.zobicfilip.springjwtv2.dto.TokensCreatedResponseDTO;
 import com.zobicfilip.springjwtv2.security.SecurityUtil;
 import com.zobicfilip.springjwtv2.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.AccountNotFoundException;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,32 +24,29 @@ public class AuthenticationController {
     private final AuthService authService;
 
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(@Validated(ValidationSequence.class) @RequestBody AuthSignUpDTO signUpDTO, HttpServletResponse response) {
+    public ResponseEntity<TokensCreatedResponseDTO> signUp(@Validated(ValidationSequence.class) @RequestBody AuthSignUpDTO signUpDTO, HttpServletResponse response) {
 
         Pair<String, String> pair = authService.registerUser(signUpDTO);
 
-        HashMap<String, String> tokenResponse = generateBodyAndPopulateHeader(response, pair.getKey(), pair.getValue());
+        TokensCreatedResponseDTO tokenResponse = generateBodyAndPopulateHeader(response, pair.getKey(), pair.getValue());
 
         return ResponseEntity.ok(tokenResponse);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> signUp(@Validated @RequestBody RefreshTokensDTO refreshTokensDTO, HttpServletResponse response) throws AccountNotFoundException {
+    public ResponseEntity<TokensCreatedResponseDTO> signUp(@Validated @RequestBody RefreshTokensDTO refreshTokensDTO, HttpServletResponse response) throws AccountNotFoundException {
 
         Pair<String, String> pair = authService.generateTokens(refreshTokensDTO.refreshToken());
 
-        HashMap<String, String> tokenResponse = generateBodyAndPopulateHeader(response, refreshTokensDTO.refreshToken(), pair.getValue());
+        TokensCreatedResponseDTO tokenResponse = generateBodyAndPopulateHeader(response, refreshTokensDTO.refreshToken(), pair.getValue());
 
         return ResponseEntity.ok(tokenResponse);
     }
 
-    private HashMap<String, String> generateBodyAndPopulateHeader(HttpServletResponse response, String refreshToken, String accessToken) {
+    private TokensCreatedResponseDTO generateBodyAndPopulateHeader(HttpServletResponse response, String refreshToken, String accessToken) {
         String bearerToken = "Bearer " + accessToken;
         response.addHeader(SecurityUtil.REFRESH_HEADER_TOKEN_NAME, refreshToken);
         response.addHeader(SecurityUtil.ACCESS_HEADER_TOKEN_NAME, bearerToken);
-        HashMap<String, String> tokenResponse = new HashMap<>();
-        tokenResponse.put(SecurityUtil.REFRESH_BODY_TOKEN_NAME, refreshToken);
-        tokenResponse.put(SecurityUtil.ACCESS_BODY_TOKEN_NAME, bearerToken);
-        return tokenResponse;
+        return new TokensCreatedResponseDTO(bearerToken, refreshToken);
     }
 }

@@ -7,15 +7,13 @@ import jakarta.validation.constraints.NotNull;
 import static com.zobicfilip.springjwtv2.dto.ConstraintOrder.*;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 
 @Data
+@Builder
 @Validated
 @ToString
 @NoArgsConstructor
