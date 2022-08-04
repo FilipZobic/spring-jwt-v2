@@ -29,7 +29,7 @@ CREATE TABLE application_role_user (
 
     CONSTRAINT pk_application_role_user_id PRIMARY KEY (role_id, user_id),
     CONSTRAINT fk_application_role_user_role_id FOREIGN KEY (role_id) REFERENCES application_role(title),
-    CONSTRAINT fk_application_role_user_user_id FOREIGN KEY (user_id) REFERENCES application_user(id)
+    CONSTRAINT fk_application_role_user_user_id FOREIGN KEY (user_id) REFERENCES application_user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE application_role_permission (
