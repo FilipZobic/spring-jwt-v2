@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zobicfilip</groupId>
     <artifactId>spring-jwt-v2</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>spring-jwt-v2</name>
     <description>spring-jwt-v2</description>
     <properties>
@@ -184,7 +184,7 @@
             </build>
         </profile>
         <profile>
-            <id>docker</id>
+            <id>docker-local</id>
             <build>
                 <plugins>
                     <plugin>
@@ -198,6 +198,51 @@
                             <to>
                                 <image>spring-jwt-v2</image>
                             </to>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker-remote</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <configuration>
+                            <from>
+                                <image>azul/zulu-openjdk:17-jre</image>
+                            </from>
+                            <to>
+                                <image>${container_registry}.dkr.ecr.eu-central-1.amazonaws.com/jwt-v2-api</image>
+                                <credHelper>ecr-login</credHelper>
+                            </to>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>

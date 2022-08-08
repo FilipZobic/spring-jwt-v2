@@ -22,6 +22,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: root
     volumes:
       - pgadmin-data:/var/lib/pgadminc
+    depends_on:
+      - db
   api:
     image: spring-jwt-v2:latest
     ports:
