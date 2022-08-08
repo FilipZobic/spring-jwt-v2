@@ -45,7 +45,7 @@ public class UserController {
 
     private final long maximumByteSizeConstraint = 2 * 1024L * 1024L;
 
-    private final FileStorageService fileStorageService;
+    private final FileStorageService fileStorageService; // TODO replace with ProfilePictureService
 
     private final UserService userService;
 
@@ -125,18 +125,28 @@ public class UserController {
             @Min (value = 0) @Max (value = 100) @RequestParam(required = false, defaultValue = "50") int size,
             @RequestParam(required = false) String email, //contains
             @RequestParam(required = false) String username, // contains
-            @CountryCode (type = CountryCode.Type.ALPHA_2, message = "Country does not exist")@RequestParam(required = false) String countryTag, // match exactly
+            @CountryCode (type = CountryCode.Type.ALPHA_2, message = "Country does not exist")
+                @RequestParam(required = false) String countryTag, // match exactly
             @RequestParam(required = true, defaultValue = "ASC") Sort.Direction order,
             @RequestParam (required = false, defaultValue = "") Set<UserAttributes> sortBy,
             @RequestParam (required = false, defaultValue = "false") boolean expandedDetails
     ) {
-        PageRequest pageRequest = PageRequest.of(
-                page,
-                size,
-                order,
-                sortBy.stream()
-                        .map(a -> a.queryName)
-                        .toArray(String[]::new));
+        System.out.println("Enter");
+        PageRequest pageRequest;
+        if (sortBy.isEmpty()) {
+            pageRequest = PageRequest.of(
+                    page,
+                    size);
+        } else {
+            pageRequest = PageRequest.of(
+                    page,
+                    size,
+                    order,
+                    sortBy.stream()
+                            .map(a -> a.queryName)
+                            .toArray(String[]::new));
+        }
+
         Page<User> userPage = userService.listUsers(pageRequest, username, email, countryTag);
         Page<UserPaginationDTO> response = new PageImpl<>(userPage.getContent().stream().map(a ->
                     UserPaginationDTO.builder()
