@@ -28,6 +28,8 @@ import javax.annotation.PostConstruct;
 
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class BaseRest extends Base {
@@ -35,6 +37,7 @@ public abstract class BaseRest extends Base {
     protected AuthSignUpDTO user;
     protected AuthSignUpDTO moderator;
     protected AuthSignUpDTO admin;
+    protected List<AuthSignUpDTO> userList;
     protected String rootUri;
     protected TestRestTemplate testRestTemplate;
     protected Validator validator;
@@ -71,6 +74,12 @@ public abstract class BaseRest extends Base {
         authService.registerUser(user);
         authService.registerUser(moderator);
         authService.registerUser(admin);
+
+        userList = List.of(user, moderator, admin);
+    }
+
+    protected Optional<AuthSignUpDTO> getUser(String role) {
+        return userList.stream().filter(u -> u.getRole().equalsIgnoreCase(role)).findFirst();
     }
 
     @AfterEach
