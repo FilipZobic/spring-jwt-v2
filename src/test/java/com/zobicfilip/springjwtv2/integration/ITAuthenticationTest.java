@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ITAuthenticationTest extends Base {
+class ITAuthenticationTest extends BaseRest {
 
     @Test
     public void registerUser_userIsCreated_whenNotViolatingAnyAuthConstraints() {
@@ -23,7 +23,7 @@ class ITAuthenticationTest extends Base {
 
         TokensCreatedResponseDTO responseDTO = responseEntity.getBody();
 
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseDTO);
         assertNotNull(responseDTO.getAccessToken());
         assertNotNull(responseDTO.getRefreshToken());
@@ -45,7 +45,7 @@ class ITAuthenticationTest extends Base {
                 (SIGN_UP_URL, duplicateUserDto, BadParameterInputDTO.class);
 
         BadParameterInputDTO responseDto = responseEntity.getBody();
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseDto);
         assertNotNull(responseDto.getValidation());
         // Better this way if for some reason name of field changes IDE picks it up
@@ -63,7 +63,7 @@ class ITAuthenticationTest extends Base {
                 (SIGN_UP_URL, userDto, BadParameterInputDTO.class);
 
         BadParameterInputDTO responseDto = responseEntity.getBody();
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseDto);
         assertNotNull(responseDto.getValidation());
         // Better this way if for some reason name of field changes IDE picks it up
@@ -76,7 +76,7 @@ class ITAuthenticationTest extends Base {
         // Phase 1
         ResponseEntity<TokensCreatedResponseDTO> moderatorResponseEntity = testRestTemplate.postForEntity(SIGN_IN_URL, new AuthSignInDTO(moderator.getEmail(), moderator.getPassword()), TokensCreatedResponseDTO.class);
         TokensCreatedResponseDTO body = moderatorResponseEntity.getBody();
-        assertEquals(moderatorResponseEntity.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, moderatorResponseEntity.getStatusCode());
         assertNotNull(body);
         assertNotNull(body.getAccessToken());
         assertNotNull(body.getRefreshToken());
@@ -89,7 +89,7 @@ class ITAuthenticationTest extends Base {
         ResponseEntity<BadParameterInputDTO> responseEntity = testRestTemplate.exchange(this.rootUri + SIGN_UP_URL, HttpMethod.POST, new HttpEntity<>(userDto, httpHeaders), BadParameterInputDTO.class);
 
         BadParameterInputDTO responseDto = responseEntity.getBody();
-        assertEquals(HttpStatus.BAD_REQUEST,responseEntity.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseDto);
         assertNotNull(responseDto.getValidation());
         // Better this way if for some reason name of field changes IDE picks it up
