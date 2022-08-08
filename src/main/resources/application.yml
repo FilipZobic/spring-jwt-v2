@@ -13,7 +13,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL95Dialect
-        format_sql: true
+        format_sql: false
     show-sql: false
 
   flyway:
@@ -21,3 +21,20 @@ spring:
     schemas:
     user:
     password:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+      max-request-size: 2MB
+security:
+  token:
+    accessLifespan:
+    refreshLifespan:
+    secret:
+    cutoffDate:
+user:
+  profile:
+    image:
+      maxSize: 2048
+      allowedWidths: 400
+      allowedHeights: 400
