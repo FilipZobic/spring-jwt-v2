@@ -12,7 +12,7 @@ import java.nio.file.StandardOpenOption;
 
 @Slf4j
 @Service
-public class FileStorageServiceSystemImpl extends FileStorageService {
+public class FileStorageServiceSystemImpl implements FileStorageService {
 
     private final String profileImagesPath;
 

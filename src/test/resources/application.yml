@@ -33,3 +33,9 @@ security:
     refreshLifespan: 10080
     secret: qqdgqswyp2dfhiudhfiouawkomv2ps4yoxvmp24oqxypv2yoqxpv4oqmpvx4ovy61-906-1x0-v61jqt34qterqwteqwrt
     cutoffDate: 2023-01-01
+user:
+  profile:
+    image:
+      maxSize: 2048
+      allowedWidths: 400
+      allowedHeights: 400
