@@ -124,6 +124,12 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
 
         <!--        SLEUTH currently not supported for M3 version-->
 <!--        <dependency>-->
@@ -173,6 +179,26 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>3.0.0-M7</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <configuration>
+                            <from>
+                                <image>azul/zulu-openjdk:17-jre</image>
+                            </from>
+                            <to>
+                                <image>spring-jwt-v2</image>
+                            </to>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

@@ -1,0 +1,42 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: authentication
+  datasource:
+    password: root
+    url: jdbc:postgresql://postgresql:5432/auth_db?autoreconnect=true&createDatabaseIfNotExist=true
+    username: root
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL95Dialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    url: jdbc:postgresql://postgresql:5432/auth_db
+    schemas: auth_db
+    user: root
+    password: root
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+      max-request-size: 2MB
+security:
+  token:
+    #    Lifespan's are in minutes
+    accessLifespan: 15
+    refreshLifespan: 10080
+    secret: qqdgqswyp2dfhiudhfiouawkomv2ps4yoxvmp24oqxypv2yoqxpv4oqmpvx4ovy61-906-1x0-v61jqt34qterqwteqwrt
+    cutoffDate: 2023-01-01
+user:
+  profile:
+    image:
+      # Kilo bytes
+      maxSize: 2048
+      allowedWidths: 400
+      allowedHeights: 400
