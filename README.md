@@ -60,9 +60,26 @@ ___
 Build API docker image locally & start it with database & pg admin uses (dock profile not relevant for production).
 Uses default bridge network between 3 services.
 
-1. `mvn clean package compile com.google.cloud.tools:jib-maven-plugin:3.2.1:dockerBuild -Dimage=spring-jwt-v2`
-2. `docker-compose -f docker-compose-dock.yaml up`
-3. `docker-compose down --remove-orphans` - *stop all services*
+<details>
+<summary>Automatic (New)</summary>
+
+1. `docker-compose up`
+2. `mvn clean package -P docker-local`
+1. `docker-compose down`
+3. `docker-compose -f docker-compose-dock.yaml up`
+4. `docker-compose down --remove-orphans` - *stop all services*
+</details>
+
+<details>
+<summary>Manually (Old)</summary>
+
+1. `docker-compose up` - so tests can run with database
+2. `mvn clean package compile com.google.cloud.tools:jib-maven-plugin:3.2.1:dockerBuild -Dimage=spring-jwt-v2`
+3. `docker-compose down`- to shut down database
+4. `docker-compose -f docker-compose-dock.yaml up`
+5. `docker-compose down --remove-orphans` - *stop all services*
+</details>
+
 
 ### Amazon Elastic Container Registry
 
@@ -148,6 +165,17 @@ Or to avoid exposing registry id in public repository send a variable instead
 &lt;/to>
 </pre>
 10. Run maven command with maven profile set `AWS_PROFILE` system env var if no default value after that add flag `-Pdocker-remote` or `-P docker-remote` so we use publishing profile
+
+<details>
+<summary>Automatic(New)</summary>
+
+1. `docker-compose up`
+2. `AWS_PROFILE=ecr-push-user mvn clean package -P docker-remote -Dcontainer_registry=xxxxxxxxxxxx`
+3. `docker-compose down`
+</details>
+
+<details>
+<summary>Manually(Old)</summary>
 <pre>
 AWS_PROFILE=ecr-push-user mvn  --debug jib:build -Pdocker-remote
 AWS_PROFILE=ecr-push-user mvn clean package --debug jib:build -Pdocker-remote
@@ -157,6 +185,7 @@ Or if we are using a variable instead of setting xxxxxxxxxxxx directly we can ad
 AWS_PROFILE=ecr-push-user mvn  --debug jib:build -Pdocker-remote -Dcontainer_registry=xxxxxxxxxxxx
 AWS_PROFILE=ecr-push-user mvn clean package --debug jib:build -Pdocker-remote -Dcontainer_registry=xxxxxxxxxxxx
 </pre>
+</details>
 
 **Caution!<br>**
 If you get 403 or 404 check your `&lt;image>...&lt;/image>` tag or `container_registry` variable
