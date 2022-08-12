@@ -15,6 +15,7 @@
 * Generics (JWTService)
 * Custom DTO parameter validation
 * Custom PreAuthorize
+* Image upload & processing
 ### Migration generated roles
 * Admin
 * Moderator
@@ -49,8 +50,9 @@ Starts pgAdmin & postgresql database use this compose file while developing star
 1. `docker-compose up`
 2. ![Alt text](Configure-InteliJ.png?raw=true "Configure IDE set profile to dev")
 3. Start with IDE
-4. Terminate process - stop server
-5. `docker-compose down` - *stop Postgres & pgAdmin*
+4. Add data source (Postgres)
+5. Terminate process - stop server
+6. `docker-compose down` - *stop Postgres & pgAdmin*
 
 ___
 **Quickstart**
@@ -58,7 +60,7 @@ ___
 Build API docker image locally & start it with database & pg admin uses (dock profile not relevant for production).
 Uses default bridge network between 3 services.
 
-1. `mvn compile com.google.cloud.tools:jib-maven-plugin:3.2.1:dockerBuild -Dimage=spring-jwt-v2`
+1. `mvn clean package compile com.google.cloud.tools:jib-maven-plugin:3.2.1:dockerBuild -Dimage=spring-jwt-v2`
 2. `docker-compose -f docker-compose-dock.yaml up`
 3. `docker-compose down --remove-orphans` - *stop all services*
 
@@ -148,10 +150,12 @@ Or to avoid exposing registry id in public repository send a variable instead
 10. Run maven command with maven profile set `AWS_PROFILE` system env var if no default value after that add flag `-Pdocker-remote` or `-P docker-remote` so we use publishing profile
 <pre>
 AWS_PROFILE=ecr-push-user mvn  --debug jib:build -Pdocker-remote
+AWS_PROFILE=ecr-push-user mvn clean package --debug jib:build -Pdocker-remote
 </pre>
 Or if we are using a variable instead of setting xxxxxxxxxxxx directly we can add `-Dcontainer_registry=xxxxxxxxxxxx`
 <pre>
 AWS_PROFILE=ecr-push-user mvn  --debug jib:build -Pdocker-remote -Dcontainer_registry=xxxxxxxxxxxx
+AWS_PROFILE=ecr-push-user mvn clean package --debug jib:build -Pdocker-remote -Dcontainer_registry=xxxxxxxxxxxx
 </pre>
 
 **Caution!<br>**
@@ -164,7 +168,7 @@ If you get 403 or 404 check your `&lt;image>...&lt;/image>` tag or `container_re
 **manual-integration-test** <br><br>
 **native** <br><br>
 
-**DRAFT** <br>
+**Draft** <br>
 1. `brew install docker-credential-helper`
 <pre>
 {
@@ -182,3 +186,54 @@ If you get 403 or 404 check your `&lt;image>...&lt;/image>` tag or `container_re
 	"credsStore": "osxkeychain"
 }
 </pre>
+
+### Connect to RDS from local machine
+1. Pick RDS create database (Postgres).
+2. Set password username
+3. We use default VPC group which means we can't yet connect outside AWS network (only ec2 for example can connect) <br>
+if we wish to connect we will need to set `Public access: Yes` & assign to a VPC which has: `Inbound rule: Postgres allow from anywhere` <br>
+***Note!!*** Don't do this for prod environments or for instances running on AWS (never assign to default VPC or set public access)
+4. To add inbound rule to default VPC go to security groups -> find default VPCs security group & click -> Edit Inbound rules
+<pre>
+{
+  "newRules": [ { "Type": "PostgresSQL", "Source": "Anywhere-IPv4" }, { "Type": "PostgresSQL", "Source": "Anywhere-IPv4" } ]
+}
+</pre>
+And yet again don't do this in production
+5. Add data source (Postgres) to IntelliJ (username & password) IAM also possible
+6. Not supported in this spring version but we could add for better integration (read replicas, cluster support)
+<pre>
+&lt;dependency>
+    &lt;groupId>org.springframework.cloud&lt;/groupId>
+    &lt;artifactId>spring-cloud-starter-aws&lt;/artifactId>
+&lt;/dependency>
+</pre>
+
+### Deploying to Elastic Beanstalk
+1. Create a new RDS with new VPS no public access -> Add access ElasticBeans HTTP (or setup when creating elastic beans instance)
+2. Go to Roles -> Elastic Beans (default role for elastic bean instances) -> attach permission EC2ContainerRegistryReadOnly (so we can download our container)
+3. Create `Dockerrun.aws.json` <br>
+*Note version 3 is when you use compose* <br>
+*For accessing other private container registries (none  ECS) Take a look at  <br> <a href='https://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth-container-instances.html'>Private registry authentication for container instances</a> <br> <a href='https://www.oasisworkflow.com/accessing-private-docker-images-from-aws-elastic-beanstalk'>Accessing private Docker images from AWS Elastic Beanstalk</a> <br> <a href='https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/single-container-docker-configuration.html'>Docker configuration</a>*
+<pre>
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "xxxxxxxxxxxx.dkr.ecr.eu-central-1.amazonaws.com/jwt-v2-api:latest"
+  },
+  "Ports": [
+    {
+      "ContainerPort": 8080,
+      "HostPort": 8080
+    }
+  ]
+}
+</pre>
+3. Elastic Beans -> New -> Select Docker -> Upload `Dockerrun.aws.json`
+4. Setup configuration ENV variables (values for all the ENV variables in application.yml(default one) - currently stored as plaintext presumably a better solution exists AWS secret manager to name one)
+5. Finish 
+6. Repeat the steps just to confirm
+### CI/CD Setup (GitHub Actions)
+#### Integration testing 
+
+#### Deployment
