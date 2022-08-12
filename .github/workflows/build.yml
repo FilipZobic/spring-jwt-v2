@@ -10,7 +10,7 @@ on:
 
 env:
   POSTGRESQL_VERSION: 13.1
-  POSTGRESQL_DB: auth_db
+  POSTGRESQL_DB: postgres
   POSTGRESQL_USER: root
   POSTGRESQL_PASSWORD: root
 

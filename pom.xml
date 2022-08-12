@@ -171,20 +171,11 @@
 
 
     <profiles>
-<!--        <profile>-->
-<!--            <id>manual-integration-test</id>-->
-<!--            <build>-->
-<!--                <plugins>-->
-<!--                    <plugin>-->
-<!--                        <groupId>org.apache.maven.plugins</groupId>-->
-<!--                        <artifactId>maven-failsafe-plugin</artifactId>-->
-<!--                        <version>3.0.0-M7</version>-->
-<!--                    </plugin>-->
-<!--                </plugins>-->
-<!--            </build>-->
-<!--        </profile>-->
         <profile>
             <id>docker-local</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -195,27 +186,35 @@
                             <from>
                                 <image>azul/zulu-openjdk:17-jre</image>
                             </from>
-                            <to>
-                                <image>spring-jwt-v2</image>
-                            </to>
+                            <container>
+                                <ports>
+                                    <port>8080</port>
+                                </ports>
+                                <format>OCI</format>
+                            </container>
                         </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>
-                                    <groupId>org.projectlombok</groupId>
-                                    <artifactId>lombok</artifactId>
-                                </exclude>
-                            </excludes>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>latest-tag</id>
+                                <phase>package</phase>
+                                <configuration>
+                                    <to>
+                                        <image>spring-jwt-v2</image>
+                                    </to>
+                                </configuration>
+                                <goals>
+                                    <goal>dockerBuild</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
         <profile>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <id>docker-remote</id>
             <build>
                 <plugins>
@@ -227,11 +226,28 @@
                             <from>
                                 <image>azul/zulu-openjdk:17-jre</image>
                             </from>
-                            <to>
-                                <image>${container_registry}.dkr.ecr.eu-central-1.amazonaws.com/jwt-v2-api</image>
-                                <credHelper>ecr-login</credHelper>
-                            </to>
+                            <container>
+                                <ports>
+                                    <port>8080</port>
+                                </ports>
+                                <format>OCI</format>
+                            </container>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>latest-tag</id>
+                                <phase>package</phase>
+                                <configuration>
+                                    <to>
+                                        <image>${container_registry}.dkr.ecr.eu-central-1.amazonaws.com/jwt-v2-api</image>
+                                        <credHelper>ecr-login</credHelper>
+                                    </to>
+                                </configuration>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
